@@ -69,14 +69,14 @@ async function run() {
       try {
         const roomId = req.params.roomId;
         const { checkOutDate, checkInDate } = req.body;
-        const filter = { _id: new ObjectId(roomId) }
-        const options = { upsert: true }
+        const filter = { _id: new ObjectId(roomId) };
+        const options = { upsert: true };
         const updateData = {
           $set: {
             checkInDate: checkInDate,
-            checkOutDate: checkOutDate
-          }
-      }
+            checkOutDate: checkOutDate,
+          },
+        };
 
         // Validate dates
         if (new Date(checkInDate) >= new Date(checkOutDate)) {
@@ -111,8 +111,12 @@ async function run() {
         }
 
         // update data
-        const resultUpdate = await RoomCollection.updateOne(filter, updateData, options)
-        res.status(201).send(resultUpdate)
+        const resultUpdate = await RoomCollection.updateOne(
+          filter,
+          updateData,
+          options
+        );
+        // res.status(201).send(resultUpdate)
         // booked data store in db
         const result = await BookedRoomCollection.insertOne(req.body);
         res
@@ -128,10 +132,32 @@ async function run() {
       }
     });
 
+    // booking date update
+    app.put("/b_date_update/:roomId", async (req, res) => {
+      const roomId = req.params.roomId;
+      const data = req.body;
+      console.log(data);
+      const filter = { id: roomId };
+      const d_update = {
+        $set: {
+          checkInDate: data?.checkInDate,
+          checkOutDate: data?.checkOutDate,
+        },
+      };
+      const resultUpdate = await BookedRoomCollection.updateOne(
+        filter,
+        d_update
+      );
+
+    });
+
     // get all room
-    app.get("/myBookedroomp", async (req, res) => {
+    app.get("/myBookedroomp/:userUid", async (req, res) => {
       try {
-        const data = await BookedRoomCollection.find().toArray();
+        const userUid = req.params.userUid;
+        const data = await BookedRoomCollection.find({
+          userUid: userUid,
+        }).toArray();
         res.status(201).send(data);
       } catch (err) {
         res
