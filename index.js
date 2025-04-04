@@ -148,7 +148,13 @@ async function run() {
         filter,
         d_update
       );
+    });
 
+    // cancel booking
+    app.delete("/booking_cancel/:id", async (req, res) => {
+      const roomId = req.params.id;
+      const cursor = BookedRoomCollection.deleteOne({ id: roomId });
+      res.send(cursor);
     });
 
     // get all room
