@@ -1,6 +1,7 @@
 import express from "express";
 import { MongoClient, ObjectId, ServerApiVersion } from "mongodb";
 import cors from "cors";
+import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
 dotenv.config();
 const app = express();
@@ -62,6 +63,17 @@ async function run() {
       } catch (err) {
         res.status(500).json({ message: "All room fetch failed", error: err });
       }
+    });
+
+    // jwt token create
+    app.post("/jwt_token", (req, res) => {
+      const user = req.body;
+      const token = jwt.sign(
+        user,
+        "secret",
+        { expiresIn: "1h" },
+      );
+      res.send(token)
     });
 
     // add a new booked
